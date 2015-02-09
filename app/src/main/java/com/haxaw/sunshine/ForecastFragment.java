@@ -26,14 +26,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.haxaw.sunshine.WeatherDataParser.getMaxTemperatureForDay;
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
  */
 public class ForecastFragment extends Fragment {
 
-    private ArrayAdapter<String> mForecastAdapter;
+    public ArrayAdapter<String> mForecastAdapter;
+    public List<String> weekForecast;
 
     public ForecastFragment() {
     }
@@ -58,7 +58,7 @@ public class ForecastFragment extends Fragment {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             FetchWeatherTask weatherTask = new FetchWeatherTask();
-            weatherTask.execute("94043");
+            weatherTask.execute("55124");
 
             return true;
         }
@@ -80,12 +80,13 @@ public class ForecastFragment extends Fragment {
                 "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
                 "Sun 6/29 - Sunny - 20/7"
         };
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
+
+        weekForecast = new ArrayList<String>(Arrays.asList(data));
 
         // Now that we have some dummy forecast data, create an ArrayAdapter.
         // The ArrayAdapter will take data from a source (like our dummy forecast) and
         // use it to populate the ListView it's attached to.
-        ArrayAdapter<String> forecastAdapter =
+        mForecastAdapter =
                 new ArrayAdapter<String>(
                         getActivity(), // The current context (this activity)
                         R.layout.list_item_forecast, // The name of the layout ID.
@@ -96,17 +97,17 @@ public class ForecastFragment extends Fragment {
 
         // Get a reference to the ListView, and attach this adapter to it.
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(forecastAdapter);
+        listView.setAdapter(mForecastAdapter);
 
         return rootView;
     }
 
-    public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
+    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
         @Override
-        protected Void doInBackground(String... params ) {
+        protected String[] doInBackground(String... params ) {
 
             // If there's no zip code, there's nothing to look up.  Verify size of post_code.
             if( params.length == 0 )
@@ -145,8 +146,6 @@ public class ForecastFragment extends Fragment {
 
                 URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG, "Built URI" + builtUri.toString());
-
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -174,24 +173,6 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
-                Log.v(LOG_TAG, "Forecast JSON String: " + forecastJsonStr);
-
-                double maxTemp[];
-                for( Integer ii = 0; ii < numDays; ++ii )
-                {
-                    try
-                    {
-                        getMaxTemperatureForDay(forecastJsonStr, ii);
-                    }
-                    catch( JSONException e )
-                    {
-                        Log.e(LOG_TAG, "JSON Error ", e);
-                        // If the code didn't successfully get the weather data, there's no point in attempting
-                        // to parse it.
-                        throw new RuntimeException(e);
-                    }
-                }
-
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
@@ -210,7 +191,36 @@ public class ForecastFragment extends Fragment {
                     }
                 }
             }
+
+
+            try
+            {
+                WeatherDataParser weatherDataParser;
+                weatherDataParser = new WeatherDataParser();
+
+                String[] dailyWeather;
+                dailyWeather = weatherDataParser.getWeatherDataFromJson(forecastJsonStr, numDays);
+
+                return dailyWeather;
+            }
+            catch( JSONException e )
+            {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
+
+            // This will only happen if there was an error getting or parsing the forecast.
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(String[] strings) {
+
+            mForecastAdapter.clear();
+            mForecastAdapter.addAll(strings);
+//            mForecastAdapter.notifyDataSetChanged();
+
+//            super.onPostExecute(strings);
         }
     }
 }
