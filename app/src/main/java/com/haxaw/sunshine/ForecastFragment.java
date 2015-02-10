@@ -1,5 +1,7 @@
 package com.haxaw.sunshine;
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,8 +13,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+//import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -25,7 +29,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
@@ -98,6 +101,21 @@ public class ForecastFragment extends Fragment {
         // Get a reference to the ListView, and attach this adapter to it.
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Context context = getActivity();
+
+                Intent detailActivityIntent;
+                detailActivityIntent = new Intent(context, DetailActivity.class);
+
+                String forecast = mForecastAdapter.getItem((int)id);
+
+                detailActivityIntent.putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(detailActivityIntent);
+            }
+        });
 
         return rootView;
     }
@@ -214,13 +232,13 @@ public class ForecastFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String[] strings) {
+        protected void onPostExecute(String[] result) {
 
             mForecastAdapter.clear();
-            mForecastAdapter.addAll(strings);
-//            mForecastAdapter.notifyDataSetChanged();
-
-//            super.onPostExecute(strings);
+            for( String dayForecastStr : result )
+            {
+                mForecastAdapter.add(dayForecastStr);
+            }
         }
     }
 }
