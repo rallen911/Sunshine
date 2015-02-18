@@ -19,12 +19,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DetailActivity"
+            android:name="com.haxaw.sunshine.DetailActivity"
             android:label="@string/title_activity_detail"
+            android:parentActivityName="com.haxaw.sunshine.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="MainActivity" />
+        </activity>
+        <activity
+            android:name="com.haxaw.sunshine.SettingsActivity"
+            android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.haxaw.sunshine.MainActivity" />
+                android:value="MainActivity" />
         </activity>
     </application>
 
