@@ -1,5 +1,9 @@
 package com.haxaw.sunshine;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -33,7 +37,13 @@ public class WeatherDataParser {
      * Prepare the weather high/lows for presentation.
      */
     private String formatHighLows(double high, double low) {
-        // For presentation, assume the user doesn't care about tenths of a degree.
+//        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity())
+
+//        String unitType = sharedPrefs.getString(
+//                getString( R.string.pref_units_key ),
+//                getString( R.string.pref_units_metric ));
+
+// For presentation, assume the user doesn't care about tenths of a degree.
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
 
