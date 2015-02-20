@@ -13,11 +13,6 @@
     <ListPreference
         android:key="@string/pref_units_key"
         android:title="@string/pref_units_label"
-        android:dialogTitle="@string/pref_units_label"
-        android:dialogMessage="Select Units"
-        android:negativeButtonText="@string/gen_cancel"
-        android:positiveButtonText="@string/gen_ok"
-        android:selectable="true"
         android:defaultValue="string/pref_units_metric"
         android:entryValues="@array/pref_unit_values"
         android:entries="@array/pref_unit_options"
