@@ -2,6 +2,10 @@ package com.haxaw.sunshine;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -54,14 +58,44 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent settingsActivityIntent;
-            settingsActivityIntent = new Intent( this, SettingsActivity.class);
-            startActivity(settingsActivityIntent);
-            return true;
-        }
+        switch( id )
+        {
+            case R.id.action_settings:
+                Intent settingsActivityIntent;
+                settingsActivityIntent = new Intent( this, SettingsActivity.class);
+                startActivity(settingsActivityIntent);
+                return true;
 
-        return super.onOptionsItemSelected(item);
+            case R.id.action_map:
+                openPreferredLocationInMap();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
+    // Show the user's preferred location on the map
+    private void openPreferredLocationInMap()
+    {
+        Uri geoLocation;
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( this );
+        String location = preferences.getString(
+                getString( R.string.pref_location_key ),
+                getString( R.string.pref_location_default ));
+
+        String mapStr = "geo:0,0?";
+        geoLocation = Uri.parse( mapStr ).buildUpon().appendQueryParameter("q", location ).build();
+
+        Intent intent = new Intent( Intent.ACTION_VIEW );
+
+        intent.setData( geoLocation );
+        PackageManager pm = getPackageManager();
+
+        if( intent.resolveActivity( pm ) != null )
+        {
+            startActivity( intent );
+        }
+    }
 }
