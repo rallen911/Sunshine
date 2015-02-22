@@ -31,6 +31,8 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,8 +42,44 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new ForecastFragment())
                     .commit();
         }
+
+        Log.d(LOG_TAG, "onCreate");
     }
 
+    @Override
+    public void onStart( )
+    {
+        Log.d(LOG_TAG, "onStart");
+        super.onStart();
+    }
+
+    @Override
+    public void onPause( )
+    {
+        Log.d(LOG_TAG, "onPause");
+        super.onPause();
+    }
+
+    @Override
+    public void onResume( )
+    {
+        Log.d(LOG_TAG, "onResume");
+        super.onResume();
+    }
+
+    @Override
+    public void onStop( )
+    {
+        Log.d(LOG_TAG, "onStop");
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy( )
+    {
+        Log.d(LOG_TAG, "onDestroy");
+        super.onDestroy();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
