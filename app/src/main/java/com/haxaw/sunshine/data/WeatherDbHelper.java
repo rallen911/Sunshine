@@ -18,7 +18,10 @@ package com.haxaw.sunshine.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
+import android.util.Log;
 
+import com.haxaw.sunshine.MainActivity;
 import com.haxaw.sunshine.data.WeatherContract.LocationEntry;
 import com.haxaw.sunshine.data.WeatherContract.WeatherEntry;
 
@@ -26,6 +29,8 @@ import com.haxaw.sunshine.data.WeatherContract.WeatherEntry;
  * Manages a local database for weather data.
  */
 public class WeatherDbHelper extends SQLiteOpenHelper {
+
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     // If you change the database schema, you must increment the database version.
     private static final int DATABASE_VERSION = 2;
@@ -38,6 +43,19 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+
+        // Create a table to hold locations.  A location consists of the string supplied in the
+        // location setting, the city name, and the latitude and longitude
+        final String SQL_CREATE_LOCATION_TABLE = "CREATE TABLE " + LocationEntry.TABLE_NAME + " (" +
+                LocationEntry._ID + " INTEGER PRIMARY KEY," +
+                LocationEntry.COLUMN_LOCATION_SETTING + " TEXT UNIQUE NOT NULL, " +
+                LocationEntry.COLUMN_CITY_NAME + " TEXT NOT NULL, " +
+                LocationEntry.COLUMN_COORD_LAT + " REAL NOT NULL, " +
+                LocationEntry.COLUMN_COORD_LONG + " REAL NOT NULL " +
+                " );";
+
+        Log.v( LOG_TAG, SQL_CREATE_LOCATION_TABLE );
+
         final String SQL_CREATE_WEATHER_TABLE = "CREATE TABLE " + WeatherEntry.TABLE_NAME + " (" +
                 // Why AutoIncrement here, and not above?
                 // Unique keys will be auto-generated in either case.  But for weather
@@ -69,7 +87,10 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
                 " UNIQUE (" + WeatherEntry.COLUMN_DATE + ", " +
                 WeatherEntry.COLUMN_LOC_KEY + ") ON CONFLICT REPLACE);";
 
+        Log.v( LOG_TAG, SQL_CREATE_WEATHER_TABLE );
+
         sqLiteDatabase.execSQL(SQL_CREATE_WEATHER_TABLE);
+        sqLiteDatabase.execSQL( SQL_CREATE_LOCATION_TABLE );
     }
 
     @Override
