@@ -167,8 +167,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         {
             // Read weather icon ID from cursor
             int weatherId = data.getInt( COL_WEATHER_CONDITION_ID );
-            // Use placeholder image for now
-            mIconView.setImageResource( R.drawable.ic_launcher );
+
+            // Use weather art image
+            mIconView.setImageResource( Utility.getArtResourceForWeatherCondition( weatherId ) );
 
             // Read user preference for metric or imperial temperature units
             boolean isMetric = Utility.isMetric( getActivity() );
