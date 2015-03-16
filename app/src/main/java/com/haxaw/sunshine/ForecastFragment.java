@@ -28,7 +28,8 @@ import com.haxaw.sunshine.data.WeatherContract;
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int FORECAST_LOADER = 0;
-
+    // For the forecast view we're showing only a small subset of the stored data.
+    // Specify the columns we need.
     private static final String[] FORECAST_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
             // the content provider joins the location & weather tables in the background
@@ -60,6 +61,19 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COL_COORD_LONG = 8;
 
     private ForecastAdapter mForecastAdapter;
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback
+    {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected( Uri dateUri );
+    }
 
     public ForecastFragment() {
     }
@@ -108,7 +122,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter( mForecastAdapter );
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        // We'll call our MainActivity
+        listView.setOnItemClickListener( new AdapterView.OnItemClickListener()
         {
 
             @Override
@@ -117,14 +132,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
                 Cursor cursor = (Cursor)adapterView.getItemAtPosition( position );
+
                 if( cursor != null )
                 {
                     String locationSetting = Utility.getPreferredLocation( getActivity() );
-                    Intent intent = new Intent( getActivity(), DetailActivity.class )
-                            .setData( WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                    (( Callback )getActivity())
+                            .onItemSelected( WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                                     locationSetting, cursor.getLong( COL_WEATHER_DATE )
                             ) );
-                    startActivity( intent );
                 }
             }
         });
@@ -146,15 +161,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         getLoaderManager().restartLoader( FORECAST_LOADER, null, this );
     }
 
-    private void updateWeather()
-    {
-        FetchWeatherTask weatherTask = new FetchWeatherTask( getActivity());
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( getActivity());
-        String location = preferences.getString( getString( R.string.pref_location_key ),
-                getString( R.string.pref_location_default ));
-
-        weatherTask.execute( location );
+    private void updateWeather() {
+        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
+        String location = Utility.getPreferredLocation(getActivity());
+        weatherTask.execute(location);
     }
 
     @Override
